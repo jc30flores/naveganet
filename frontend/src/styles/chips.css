@@ -1,0 +1,24 @@
+@tailwind components;
+
+@layer components {
+  .chip {
+    @apply inline-flex items-center justify-center flex-wrap gap-1 rounded-full px-3 py-1 text-sm font-medium text-center break-words shadow-sm;
+  }
+  .chip-green {
+    @apply bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300;
+  }
+  .chip-amber {
+    @apply bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300;
+  }
+  .chip-cyan {
+    @apply bg-cyan-100 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300;
+  }
+  .chip-rose {
+    @apply bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300;
+  }
+  @media (max-width:420px) {
+    .chip {
+      @apply text-xs px-2 py-1;
+    }
+  }
+}

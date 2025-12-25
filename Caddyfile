@@ -1,0 +1,32 @@
+:9000 {
+  encode zstd gzip
+
+  # API routes to Django backend
+  handle /api/* {
+    reverse_proxy http://127.0.0.1:8000 {
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host  {host}
+    }
+  }
+
+  # Static files from Django
+  handle /static/* {
+    reverse_proxy http://127.0.0.1:8000
+  }
+
+  # Admin routes to Django
+  handle /admin/* {
+    reverse_proxy http://127.0.0.1:8000 {
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host  {host}
+    }
+  }
+
+  # Everything else to frontend
+  handle {
+    reverse_proxy http://127.0.0.1:8080 {
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host  {host}
+    }
+  }
+}

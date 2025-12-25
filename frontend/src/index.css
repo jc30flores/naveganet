@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Auto Parts Inventory System - Orange-Yellow Theme
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Light mode - Orange-Yellow theme */
+    --background: 50 20% 98%;
+    --foreground: 0 0% 5%;
+
+    /* Card and surface colors */
+    --card: 50 15% 96%;
+    --card-foreground: 0 0% 5%;
+
+    /* Popover colors */
+    --popover: 50 20% 98%;
+    --popover-foreground: 0 0% 5%;
+
+    /* Light yellowish-orange primary color - darker for better contrast */
+    --primary: 42 85% 45%;
+    --primary-foreground: 50 15% 96%;
+
+    /* Secondary elements */
+    --secondary: 38 20% 88%;
+    --secondary-foreground: 0 0% 15%;
+
+    /* Muted elements */
+    --muted: 38 15% 92%;
+    --muted-foreground: 0 0% 35%;
+
+    /* Accent dark yellowish-orange for highlights */
+    --accent: 42 85% 45%;
+    --accent-foreground: 50 15% 96%;
+
+    /* Destructive actions */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 50 15% 96%;
+
+    /* Borders and inputs */
+    --border: 38 25% 85%;
+    --input: 38 15% 92%;
+    --ring: 42 85% 45%;
+
+    /* Success and warning colors */
+    --success: 142 76% 36%;
+    --warning: 30 92% 50%;
+    
+    /* Chart colors for reports */
+    --chart-1: 42 85% 45%;
+    --chart-2: 38 85% 55%;
+    --chart-3: 38 75% 65%;
+    --chart-4: 38 25% 75%;
+    --chart-5: 35 35% 65%;
+
+    --radius: 0.375rem;
+
+    --sidebar-background: 50 15% 96%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 0 0% 5%;
+    --sidebar-primary-foreground: 50 15% 96%;
+    --sidebar-accent: 38 20% 88%;
+    --sidebar-accent-foreground: 0 0% 5%;
+    --sidebar-border: 38 25% 85%;
+    --sidebar-ring: 42 85% 45%;
+  }
+
+  .dark {
+    /* Dark mode - Light Orange-Yellow theme */
+    --background: 30 15% 8%;
+    --foreground: 50 20% 95%;
+
+    /* Card and surface colors */
+    --card: 30 15% 12%;
+    --card-foreground: 50 20% 95%;
+
+    /* Popover colors */
+    --popover: 30 15% 10%;
+    --popover-foreground: 50 20% 95%;
+
+    /* Lighter yellowish-orange for dark mode */
+    --primary: 48 85% 72%;
+    --primary-foreground: 30 15% 8%;
+
+    /* Secondary elements - dark grays */
+    --secondary: 30 15% 18%;
+    --secondary-foreground: 50 15% 85%;
+
+    /* Muted elements */
+    --muted: 30 15% 15%;
+    --muted-foreground: 45 12% 65%;
+
+    /* Accent light yellowish-orange for highlights */
+    --accent: 48 85% 72%;
+    --accent-foreground: 30 15% 8%;
+
+    /* Destructive actions */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 50 20% 98%;
+
+    /* Borders and inputs - subtle grays */
+    --border: 30 15% 20%;
+    --input: 30 15% 15%;
+    --ring: 48 85% 72%;
+
+    /* Success and warning colors */
+    --success: 142 76% 36%;
+    --warning: 30 92% 50%;
+    
+    /* Chart colors for reports */
+    --chart-1: 48 85% 72%;
+    --chart-2: 42 85% 55%;
+    --chart-3: 42 75% 45%;
+    --chart-4: 30 15% 25%;
+    --chart-5: 38 15% 35%;
+
+    --sidebar-background: 30 15% 8%;
+    --sidebar-foreground: 50 20% 85%;
+    --sidebar-primary: 48 85% 72%;
+    --sidebar-primary-foreground: 30 15% 8%;
+    --sidebar-accent: 30 15% 18%;
+    --sidebar-accent-foreground: 50 20% 95%;
+    --sidebar-border: 30 15% 20%;
+    --sidebar-ring: 48 85% 72%;
+  }
+
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .surface {
+    @apply rounded-2xl border border-black/5 dark:border-white/10
+           bg-white dark:bg-neutral-900
+           shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]
+           dark:shadow-[0_18px_40px_-18px_rgba(0,0,0,0.85)];
+  }
+  .surface-pad { @apply p-3 sm:p-5; }
+
+  /* Scrollbar suave (webkit + firefox) */
+  .scroll-soft { scrollbar-width: thin; }
+  .scroll-soft::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scroll-soft::-webkit-scrollbar-thumb { @apply bg-neutral-300 dark:bg-neutral-700 rounded-full; }
+
+  /* Compactación móvil para POS */
+  @media (max-width: 640px) {
+    .pos-compact h1 { @apply text-2xl; }
+    .pos-compact .pos-actions { @apply gap-2; }
+    .pos-compact .pos-btn { @apply text-sm px-3 py-1.5 rounded-lg; }
+    .pos-compact .pos-field { @apply h-10 text-sm; }
+    .pos-compact .pos-table { @apply text-sm; }
+  }
+}

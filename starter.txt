@@ -1,0 +1,27 @@
+@echo off
+REM ==== CONFIGURACIÓN ====
+set "BACKEND_DIR=%USERPROFILE%\coloso-autoparts\backend"
+set "FRONTEND_DIR=%USERPROFILE%\coloso-autoparts\frontend"
+set "APP_URL=http://localhost:8080"
+
+REM --- Abrir Backend oculto ---
+start "" /min cmd /c "cd /d %BACKEND_DIR% && python manage.py runserver"
+
+REM --- Abrir Frontend oculto ---
+start "" /min cmd /c "cd /d %FRONTEND_DIR% && npm run dev"
+
+REM --- Esperar 2 segundos antes de abrir navegador ---
+timeout /t 2 /nobreak >nul
+
+REM --- Abrir Mozilla Firefox en modo kiosko (sin UI, pantalla completa) ---
+set "FF_X64=C:\Program Files\Mozilla Firefox\firefox.exe"
+set "FF_X86=C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+
+if exist "%FF_X64%" (
+  start "" "%FF_X64%" --kiosk -new-window "%APP_URL%"
+) else if exist "%FF_X86%" (
+  start "" "%FF_X86%" --kiosk -new-window "%APP_URL%"
+) else (
+  echo Firefox no encontrado, abriendo navegador por defecto...
+  start "" "%APP_URL%"
+)
