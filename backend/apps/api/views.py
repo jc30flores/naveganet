@@ -3025,22 +3025,6 @@ def pos_checkout(request):
         return Response({"detail": str(exc)}, status=400)
 
 
-@api_view(["DELETE"])
-def delete_products_zero_stock(request):
-    tipo = request.query_params.get("tipo")
-    if tipo not in ("new", "used", "both"):
-        return Response({"detail": "Tipo inválido"}, status=400)
-    qs = models.Productos.objects.filter(stock=0)
-    if tipo == "new":
-        qs = qs.filter(condicion="new")
-    elif tipo == "used":
-        qs = qs.filter(condicion="used")
-    deleted_count = qs.count()
-    with transaction.atomic():
-        qs.delete()
-    return Response({"deleted_count": deleted_count})
-
-
 class UsuariosViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UsuarioSerializer
     permission_classes = [IsAuthenticated]

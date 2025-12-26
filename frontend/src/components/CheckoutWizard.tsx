@@ -368,45 +368,7 @@ export default function CheckoutWizard({ open, onClose, items, total, onSuccess,
         )}
       </AppModal>
 
-      {/* Modal de confirmación de venta exitosa */}
-      {saleSuccess && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]" onClick={handleSuccessClose}>
-          <div className="bg-card p-6 rounded-lg shadow-lg max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-green-100 dark:bg-green-900 p-2">
-                  <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-foreground">¡Venta Registrada!</h2>
-              </div>
-              <Button variant="ghost" size="icon" onClick={handleSuccessClose}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-muted-foreground">Número de Factura:</span>
-                <span className="font-bold text-lg">#{saleSuccess.id}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-muted-foreground">Total:</span>
-                <span className="font-bold text-lg text-primary">${saleSuccess.total.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-muted-foreground">Tipo:</span>
-                <span className="font-medium">
-                  {saleSuccess.saleType === 'CREDIT' ? 'Venta a Crédito' : 'Venta Directa'}
-                </span>
-              </div>
-            </div>
-
-            <Button onClick={handleSuccessClose} className="w-full" size="lg">
-              Continuar
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Modal de confirmación de venta exitosa - Este modal se maneja en el componente padre */}
     </>
   );
 }

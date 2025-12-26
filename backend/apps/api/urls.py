@@ -29,7 +29,6 @@ urlpatterns = [
     path('creditos/<int:pk>/', views.CreditosViewSet.as_view({'get': 'retrieve'}), name='creditos-detail'),
     path('deudores/', views.DeudoresListAPIView.as_view(), name='deudores-list'),
     path('deudores/<int:pk>/', views.DeudorDetailAPIView.as_view({'get': 'retrieve'}), name='deudores-detail'),
-    path('productos/stock0', views.delete_products_zero_stock, name='productos-stock0'),
     path('devoluciones/search-lines', views.devoluciones_search_lines, name='devoluciones-search-lines'),
     path('auth/csrf/', views_csrf.csrf_view, name='auth-csrf'),
     path('auth/login', views_auth.login_view, name='auth-login'),

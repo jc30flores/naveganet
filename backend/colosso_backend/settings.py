@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-key')
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".trycloudflare.com", ".ngrok.io", ".ngrok-free.app", ".cheros.dev"]
 
 INSTALLED_APPS = ['django.contrib.admin','django.contrib.auth','django.contrib.contenttypes','django.contrib.sessions','django.contrib.messages','django.contrib.staticfiles','rest_framework','corsheaders','apps.api']
 
@@ -30,14 +30,44 @@ USE_TZ=True
 STATIC_URL='/static/'
 STATIC_ROOT=BASE_DIR/'staticfiles'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:9000",
-    "http://127.0.0.1:9000",
+# Para desarrollo con túneles, permitir todos los orígenes temporalmente
+# En producción, usar CORS_ALLOWED_ORIGINS con dominios específicos
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True') == 'True'
+
+# Configuración adicional de CORS
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Si prefieres especificar orígenes manualmente, descomenta esto y comenta la línea anterior:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8080",
+#     "http://127.0.0.1:8080",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+#     "http://localhost:9000",
+#     "http://127.0.0.1:9000",
+#     # Agregar aquí la URL del túnel cuando la tengas, ej:
+#     # "https://xxxxx.trycloudflare.com",
+# ]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ["Content-Disposition", "X-Filename"]
 CSRF_TRUSTED_ORIGINS = [
@@ -47,6 +77,10 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:9000",
     "http://127.0.0.1:9000",
+    "https://*.trycloudflare.com",
+    "https://*.ngrok.io",
+    "https://*.ngrok-free.app",
+    "https://*.cheros.dev",
 ]
 
 REST_FRAMEWORK = {

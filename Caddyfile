@@ -22,11 +22,21 @@
     }
   }
 
+  # Vite HMR WebSocket and dev server routes
+  handle /@vite/* {
+    reverse_proxy http://127.0.0.1:8080 {
+      header_up X-Forwarded-Proto {scheme}
+      header_up X-Forwarded-Host  {host}
+    }
+  }
+
   # Everything else to frontend
   handle {
     reverse_proxy http://127.0.0.1:8080 {
       header_up X-Forwarded-Proto {scheme}
       header_up X-Forwarded-Host  {host}
+      header_up Connection {>Connection}
+      header_up Upgrade {>Upgrade}
     }
   }
 }

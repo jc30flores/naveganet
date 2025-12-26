@@ -76,9 +76,72 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(href);
 }
 
-export const API_BASE = import.meta.env.VITE_API_URL || "/api";
+// Detectar si estamos en un túnel de Cloudflare
+const isTunnel = typeof window !== 'undefined' && (
+  window.location.hostname.includes('trycloudflare.com') ||
+  window.location.hostname.includes('cheros.dev')
+);
+
+const getApiBase = () => {
+  // Si hay una URL de API configurada explícitamente, usarla
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // SIEMPRE usar el origen actual para construir la URL completa
+  // Esto evita que el navegador intente usar localhost cuando está en un túnel
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    // Si estamos en localhost, usar ruta relativa (para el proxy de Vite)
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return "/api";
+    }
+    // Si estamos en un túnel o dominio remoto, usar URL completa
+    return `${origin}/api`;
+  }
+  
+  // Fallback: ruta relativa
+  return "/api";
+};
+
+// NO usar constante, calcular en cada petición
+const getApiBaseUrl = () => {
+  // Si hay una URL de API configurada explícitamente, usarla
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // SIEMPRE usar el origen actual para construir la URL completa
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    // Si estamos en localhost, usar ruta relativa (para el proxy de Vite)
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return "/api";
+    }
+    // Si estamos en un túnel o dominio remoto, usar URL completa
+    return `${origin}/api`;
+  }
+  
+  // Fallback: ruta relativa
+  return "/api";
+};
+
+// Mantener para compatibilidad, pero calcular dinámicamente
+export const API_BASE = getApiBaseUrl();
+
 async function request(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  // Calcular la URL base en cada petición para asegurar que use el origen correcto
+  const apiBase = getApiBaseUrl();
+  const fullUrl = apiBase.startsWith('http') 
+    ? `${apiBase}${path}` 
+    : `${apiBase}${path}`;
+  
+  console.log('[API] Request URL:', fullUrl);
+  console.log('[API] API_BASE calculated:', apiBase);
+  console.log('[API] Window origin:', typeof window !== 'undefined' ? window.location.origin : 'N/A');
+  console.log('[API] Window hostname:', typeof window !== 'undefined' ? window.location.hostname : 'N/A');
+  
+  const res = await fetch(fullUrl, {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     credentials: "include",
     ...options,
@@ -93,9 +156,10 @@ async function request(path: string, options: RequestInit = {}) {
   return ct.includes("application/json") ? res.json() : res.text();
 }
 async function csrfRequest(path: string, method: string, data?: unknown) {
-  await fetch(`${API_BASE}/csrf/`, { credentials: "include" });
+  const apiBase = getApiBaseUrl();
+  await fetch(`${apiBase}/csrf/`, { credentials: "include" });
   const csrftoken = getCookie("csrftoken");
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${apiBase}${path}`, {
     method,
     credentials: "include",
     headers: {
@@ -149,7 +213,8 @@ interface CheckoutPayload {
   observaciones?: string
 }
 export async function searchClientes(q: string, signal?: AbortSignal) {
-  const r = await fetch(`${API_BASE}/clientes/?q=${encodeURIComponent(q)}`, {
+  const apiBase = getApiBaseUrl();
+  const r = await fetch(`${apiBase}/clientes/?q=${encodeURIComponent(q)}`, {
     credentials: 'include',
     signal,
   });
@@ -244,7 +309,8 @@ export const api = {
     const params = new URLSearchParams({ format, mode });
     if (start) params.set('start', start);
     if (end) params.set('end', end);
-    const url = `${API_BASE}/historial-ventas/export/?${params.toString()}`;
+    const apiBase = getApiBaseUrl();
+    const url = `${apiBase}/historial-ventas/export/?${params.toString()}`;
     const resp = await axios.get(url, {
       responseType: 'blob',
       withCredentials: true,
@@ -491,7 +557,8 @@ export const api = {
     });
 
     try {
-      const res = await axios.get(`${API_BASE}/reportes/export-inventario/`, {
+      const apiBase = getApiBaseUrl();
+      const res = await axios.get(`${apiBase}/reportes/export-inventario/`, {
         params: queryParams,
         responseType: 'blob',
         withCredentials: true,
@@ -618,7 +685,8 @@ export const api = {
   // POS Checkout
   posCheckout: async (data: CheckoutPayload) => {
     const csrftoken = getCookie("csrftoken");
-    const res = await fetch(`${API_BASE}/pos/checkout`, {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/pos/checkout`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -634,9 +702,10 @@ export const api = {
     return res.json();
   },
   validateOverrideCode: async (code: string) => {
-    await fetch(`${API_BASE}/csrf/`, { credentials: 'include' });
+    const apiBase = getApiBaseUrl();
+    await fetch(`${apiBase}/csrf/`, { credentials: 'include' });
     const csrftoken = getCookie('csrftoken');
-    const res = await fetch(`${API_BASE}/pos/validate-code`, {
+    const res = await fetch(`${apiBase}/pos/validate-code`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -648,7 +717,8 @@ export const api = {
     return res.json();
   },
   getOverrideStatus: async () => {
-    const res = await fetch(`${API_BASE}/pos/validate-code`, {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/pos/validate-code`, {
       credentials: 'include',
     });
     return res.json();

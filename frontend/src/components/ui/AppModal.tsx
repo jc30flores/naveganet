@@ -38,13 +38,13 @@ export default function AppModal({
         <DialogContent
           aria-describedby={description ? descId : undefined}
           className={cn(
-            'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[min(560px,90vw)] max-h-[85svh] sm:max-h-[85vh] overflow-x-visible overflow-y-auto rounded-2xl sm:rounded-2xl border border-border bg-background text-foreground shadow-2xl ring-1 ring-primary/15 data-[state=open]:animate-in data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 px-4 sm:px-6 py-4 text-base md:text-lg',
+            'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[min(560px,90vw)] max-h-[85svh] sm:max-h-[85vh] overflow-hidden rounded-2xl sm:rounded-2xl border border-border bg-background text-foreground shadow-2xl ring-1 ring-primary/15 data-[state=open]:animate-in data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 flex flex-col text-base md:text-lg',
             className,
           )}
-          style={{ paddingBottom: 'env(safe-area-inset-bottom)', scrollbarGutter: 'stable both-edges' }}
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           {(title || description) && (
-            <div className="sticky top-0 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-background/95 backdrop-blur border-b border-border">
+            <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-b border-border">
               {title && (
                 <DialogTitle className="flex items-center gap-2 text-lg font-semibold tracking-wide text-foreground">
                   {title}
@@ -57,9 +57,11 @@ export default function AppModal({
               )}
             </div>
           )}
-          <div className="space-y-4">{children}</div>
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4" style={{ scrollbarGutter: 'stable both-edges' }}>
+            {children}
+          </div>
           {footer && (
-            <div className="sticky bottom-0 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-background/95 backdrop-blur border-t border-border">
+            <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-t border-border">
               {footer}
             </div>
           )}

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CategoryFilterModal from '@/components/CategoryFilterModal';
 import CheckoutWizard from '@/components/CheckoutWizard';
 import CartItem, { POSCartItem } from '@/components/pos/CartItem';
@@ -196,11 +195,11 @@ export default function NuevaFacturaModal({ open, onClose, onSuccess }: NuevaFac
       open={open}
       onClose={handleClose}
       title="Nueva Factura"
-      className="max-w-[95vw] lg:max-w-7xl w-full"
+      className="max-w-[95vw] lg:max-w-6xl w-full"
       footer={
         <div className="flex justify-between items-center w-full">
-          <div className="text-lg font-semibold">
-            Total: <span className="text-primary text-xl">${total.toFixed(2)}</span>
+          <div className="text-base font-medium">
+            Total: <span className="text-primary text-lg font-semibold">${total.toFixed(2)}</span>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleClose}>
@@ -210,7 +209,6 @@ export default function NuevaFacturaModal({ open, onClose, onSuccess }: NuevaFac
               onClick={() => setShowCheckout(true)}
               disabled={cart.length === 0}
               className="gap-2"
-              size="lg"
             >
               <CreditCard className="h-4 w-4" />
               Continuar al Pago
@@ -219,32 +217,22 @@ export default function NuevaFacturaModal({ open, onClose, onSuccess }: NuevaFac
         </div>
       }
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 h-[calc(100vh-250px)]">
-        {/* Products Section */}
-        <div className="flex flex-col space-y-4 overflow-hidden">
-          {/* Header con búsqueda y filtros */}
-          <div className="space-y-3">
-            {/* Item Type Selector */}
-            <Tabs value={itemType} onValueChange={(value) => setItemType(value as 'producto' | 'servicio' | 'all')}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="all">Todos</TabsTrigger>
-                <TabsTrigger value="producto">Productos</TabsTrigger>
-                <TabsTrigger value="servicio">Servicios</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            {/* Search and Category Filter */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 min-h-0 flex-1">
+        {/* Products Section - Estilo más limpio */}
+        <div className="flex flex-col space-y-4 min-h-0">
+          {/* Búsqueda simplificada - Fija */}
+          <div className="space-y-2 flex-shrink-0">
+            <label className="text-sm font-medium text-foreground">
+              Buscar producto o servicio por nombre o código
+            </label>
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                <Input
-                  placeholder="Buscar por código o nombre..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 h-11 text-base"
-                  autoFocus
-                />
-              </div>
+              <Input
+                placeholder="Buscar producto o servicio por nombre o código"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 h-11 text-base"
+                autoFocus
+              />
               <Button
                 variant="outline"
                 onClick={() => setShowCategoryModal(true)}
@@ -254,208 +242,166 @@ export default function NuevaFacturaModal({ open, onClose, onSuccess }: NuevaFac
                 Categoría
               </Button>
             </div>
+          </div>
 
-            {/* Active Filters */}
-            {selectedCategories.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-muted-foreground">Filtros activos:</span>
-                {getSelectedCategoryNames().map((categoryName, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                    {categoryName}
-                    <X
-                      className="h-3 w-3 cursor-pointer hover:text-destructive"
-                      onClick={() =>
-                        setSelectedCategories((prev) =>
-                          prev.filter(
-                            (id) =>
-                              id !==
-                              categorias.find((c) => (c.name ?? c.nombre) === categoryName)?.id
-                          )
+          {/* Filtros activos - Fija */}
+          {selectedCategories.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+              {getSelectedCategoryNames().map((categoryName, index) => (
+                <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  {categoryName}
+                  <X
+                    className="h-3 w-3 cursor-pointer hover:text-destructive"
+                    onClick={() =>
+                      setSelectedCategories((prev) =>
+                        prev.filter(
+                          (id) =>
+                            id !==
+                            categorias.find((c) => (c.name ?? c.nombre) === categoryName)?.id
                         )
-                      }
-                    />
-                  </Badge>
-                ))}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="h-6 text-xs"
-                >
-                  Limpiar todo
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Products Grid */}
-          <div className="flex-1 overflow-y-auto pr-2">
-            {loading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <Card key={i} className="p-4">
-                    <Skeleton className="h-20 w-full mb-2" />
-                    <Skeleton className="h-4 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </Card>
-                ))}
-              </div>
-            ) : productos.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                <Search className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-lg font-medium text-foreground mb-2">No se encontraron items</p>
-                <p className="text-sm text-muted-foreground">
-                  Intenta cambiar los filtros o la búsqueda
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {productos.map((producto) => {
-                    const qtyInCart = cart.find((item) => item.id === producto.id)?.cantidad || 0;
-                    const isInCart = qtyInCart > 0;
-                    return (
-                      <Card
-                        key={producto.id}
-                        className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${
-                          isInCart ? 'ring-2 ring-primary' : ''
-                        }`}
-                        onClick={() => addToCart(producto)}
-                      >
-                        <CardContent className="p-0 space-y-3">
-                          <div className="space-y-1">
-                            <div className="flex items-start justify-between">
-                              <Badge variant="secondary" className="text-xs capitalize">
-                                {producto.tipo}
-                              </Badge>
-                              {producto.codigo && (
-                                <span className="text-xs font-mono text-muted-foreground">
-                                  {producto.codigo}
-                                </span>
-                              )}
-                            </div>
-                            <h3 className="font-semibold text-sm leading-tight line-clamp-2">
-                              {producto.nombre}
-                            </h3>
-                          </div>
-                          <div className="flex items-center justify-between pt-2 border-t">
-                            <span className="font-bold text-primary text-lg">
-                              ${producto.precio.toFixed(2)}
-                            </span>
-                            {isInCart ? (
-                              <div className="flex items-center gap-2 bg-primary/10 rounded-md px-2 py-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateQuantity(producto.id, qtyInCart - 1);
-                                  }}
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <span className="text-sm font-semibold min-w-[20px] text-center">
-                                  {qtyInCart}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    addToCart(producto);
-                                  }}
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <Button
-                                size="sm"
-                                className="h-8"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addToCart(producto);
-                                }}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-                {!loading && pageCount > 1 && (
-                  <div className="mt-4 flex justify-center">
-                    <Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Cart Section */}
-        <div className="flex flex-col border-l pl-6 space-y-4 overflow-hidden">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <ShoppingCart className="h-5 w-5 text-primary" />
-              Carrito
-            </h2>
-            {cart.length > 0 && (
+                      )
+                    }
+                  />
+                </Badge>
+              ))}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearCart}
-                className="text-destructive hover:text-destructive"
+                onClick={clearFilters}
+                className="h-7 text-xs"
               >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Limpiar
+                Limpiar filtros
               </Button>
-            )}
-          </div>
-
-          {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center py-12">
-              <ShoppingCart className="h-16 w-16 text-muted-foreground mb-4 opacity-50" />
-              <p className="text-muted-foreground font-medium mb-1">Carrito vacío</p>
-              <p className="text-sm text-muted-foreground">
-                Agrega productos o servicios desde la lista
-              </p>
             </div>
-          ) : (
-            <>
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-                {cart.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-muted/50 rounded-lg p-3 space-y-2"
-                  >
-                    <div className="flex items-start justify-between">
+          )}
+
+          {/* Lista de resultados - Scrolleable */}
+          <div className="space-y-2 flex-1 min-h-0 flex flex-col">
+            <label className="text-sm font-medium text-foreground flex-shrink-0">Resultados</label>
+            <div className="flex-1 overflow-y-auto border rounded-lg p-2 space-y-1 min-h-0">
+              {loading ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 border rounded">
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  ))}
+                </div>
+              ) : productos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Search className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+                  <p className="text-muted-foreground font-medium mb-1">No se encontraron items</p>
+                  <p className="text-sm text-muted-foreground">
+                    Intenta cambiar los filtros o la búsqueda
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {productos.map((producto) => {
+                    const qtyInCart = cart.find((item) => item.id === producto.id)?.cantidad || 0;
+                    return (
+                      <div
+                        key={producto.id}
+                        className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-foreground uppercase text-sm">
+                              {producto.nombre}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span className="font-medium text-primary">${producto.precio.toFixed(2)}</span>
+                            <span>·</span>
+                            <span className="font-mono text-xs">{producto.codigo || 'N/A'}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                          {qtyInCart > 0 ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => updateQuantity(producto.id, qtyInCart - 1)}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="text-sm font-semibold min-w-[24px] text-center">
+                                {qtyInCart}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => addToCart(producto)}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => addToCart(producto)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {!loading && pageCount > 1 && (
+                    <div className="mt-4 flex justify-center pt-4 border-t">
+                      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Cart Section - Estilo más limpio */}
+        <div className="flex flex-col border-l pl-6 space-y-4 min-h-0">
+          <div className="flex flex-col min-h-0 flex-1">
+            <h2 className="text-sm font-medium text-foreground mb-2 flex-shrink-0">Items seleccionados</h2>
+            {cart.length === 0 ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center py-12">
+                <ShoppingCart className="h-16 w-16 text-muted-foreground mb-4 opacity-30" />
+                <p className="text-muted-foreground font-medium mb-1">No hay items seleccionados.</p>
+                <p className="text-sm text-muted-foreground">
+                  Agrega productos o servicios desde la lista
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2 flex-1 min-h-0 flex flex-col">
+                <div className="flex-1 overflow-y-auto space-y-2 pr-2 min-h-0">
+                  {cart.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border"
+                    >
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm leading-tight line-clamp-2">
+                        <p className="font-medium text-sm text-foreground mb-1">
                           {item.nombre}
                         </p>
-                        {item.codigo && (
-                          <p className="text-xs text-muted-foreground font-mono mt-1">
-                            {item.codigo}
-                          </p>
-                        )}
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>${(item.overridePrice ?? item.precio).toFixed(2)}</span>
+                          {item.codigo && (
+                            <>
+                              <span>·</span>
+                              <span className="font-mono">{item.codigo}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                        onClick={() => removeFromCart(item.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 ml-4">
                         <Button
                           variant="outline"
                           size="sm"
@@ -464,7 +410,7 @@ export default function NuevaFacturaModal({ open, onClose, onSuccess }: NuevaFac
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className="text-sm font-semibold min-w-[30px] text-center">
+                        <span className="text-sm font-semibold min-w-[24px] text-center">
                           {item.cantidad}
                         </span>
                         <Button
@@ -476,24 +422,18 @@ export default function NuevaFacturaModal({ open, onClose, onSuccess }: NuevaFac
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
-                      <span className="font-bold text-primary">
-                        ${((item.overridePrice ?? item.precio) * item.cantidad).toFixed(2)}
-                      </span>
                     </div>
+                  ))}
+                </div>
+                <div className="pt-3 border-t flex justify-end flex-shrink-0">
+                  <div className="text-right">
+                    <span className="text-sm text-muted-foreground">Total: </span>
+                    <span className="text-lg font-bold text-primary">${total.toFixed(2)}</span>
                   </div>
-                ))}
-              </div>
-
-              <Separator />
-
-              <div className="pt-2">
-                <div className="flex justify-between items-center text-lg">
-                  <span className="font-semibold">Total:</span>
-                  <span className="font-bold text-primary text-xl">${total.toFixed(2)}</span>
                 </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

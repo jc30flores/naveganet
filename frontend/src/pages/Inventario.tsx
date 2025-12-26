@@ -30,9 +30,6 @@ import FiltersModal from '@/components/inventory/FiltersModal';
 import ExportInventarioModal from '@/components/inventory/ExportInventarioModal';
 import ModalProductForm from '@/components/ModalProductForm';
 import AppModal from '@/components/ui/AppModal';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { deleteZeroStock } from '@/api/productos';
 import Pagination from '@/components/ui/Pagination';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { usePaginatedFetch } from '@/hooks/usePaginatedFetch';
@@ -102,10 +99,6 @@ export default function Inventario() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Producto | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [showCodeModal, setShowCodeModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [accessCode, setAccessCode] = useState('');
-  const [deleteTipo, setDeleteTipo] = useState<'new' | 'used' | 'both'>('both');
   const [exportOpen, setExportOpen] = useState(false);
   const [page, setPage] = useState(() => normalizePageParam(searchParams.get('page')));
   const pageJumpScrollRef = useRef(true);
@@ -413,36 +406,6 @@ export default function Inventario() {
     });
   }, [setPage]);
 
-  const openDeleteModal = () => {
-    if (!canDeleteProducts) return;
-    setAccessCode('');
-    setShowCodeModal(true);
-  };
-
-  const verifyCode = async () => {
-    try {
-      const res = await api.validateOverrideCode(accessCode);
-      if (res.ok) {
-        setShowCodeModal(false);
-        setShowConfirmModal(true);
-      } else {
-        toast({ title: 'Código incorrecto', variant: 'destructive' });
-      }
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
-    }
-  };
-
-  const confirmDelete = async () => {
-    try {
-      const res = await deleteZeroStock(deleteTipo);
-      toast({ title: `Eliminados ${res.deleted_count} productos` });
-      setShowConfirmModal(false);
-      await productosQuery.refetch();
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
-    }
-  };
 
 
   const catName = (p: any) =>
@@ -468,15 +431,6 @@ export default function Inventario() {
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">Catálogo</h1>
         </div>
         <div className="flex gap-2">
-          {canDeleteProducts && (
-            <Button
-              className="bg-primary hover:bg-primary/90 text-primary-foreground text-base"
-              onClick={openDeleteModal}
-            >
-              <Trash2 className="h-5 w-5 mr-2" />
-              Stock 0
-            </Button>
-          )}
           {canAddProducts && (
             <Button
               className="bg-primary hover:bg-primary/90 text-primary-foreground text-base"
@@ -600,7 +554,6 @@ export default function Inventario() {
                 <TableHead className="text-muted-foreground text-sm md:text-base hidden md:table-cell">Categoría</TableHead>
                 <TableHead className="text-muted-foreground text-sm md:text-base">Precio</TableHead>
                 <TableHead className="text-muted-foreground text-sm md:text-base">Costo</TableHead>
-                <TableHead className="text-muted-foreground text-sm md:text-base">Stock</TableHead>
                 <TableHead className="text-muted-foreground text-sm md:text-base">Estado</TableHead>
                 {showActionColumn && (
                   <TableHead className="text-muted-foreground text-sm md:text-base">Acciones</TableHead>
@@ -627,9 +580,6 @@ export default function Inventario() {
                   </TableCell>
                   <TableCell className="font-medium text-sm md:text-base text-muted-foreground">
                     ${toNum(producto.costo).toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-foreground text-sm md:text-base">
-                    {producto.stock}
                   </TableCell>
                   <TableCell>
                     <StatusBadge
@@ -670,7 +620,7 @@ export default function Inventario() {
               {!loadingProductos && displayedProducts.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={showActionColumn ? 8 : 7}
+                    colSpan={showActionColumn ? 7 : 6}
                     className="text-center text-muted-foreground"
                   >
                     No se encontraron productos
@@ -713,75 +663,6 @@ export default function Inventario() {
         product={editingProduct || undefined}
       />
 
-      <AppModal
-        open={showCodeModal}
-        onClose={() => setShowCodeModal(false)}
-        title="Eliminar stock 0"
-        description="Ingresa el código de acceso"
-        footer={
-          <div className="flex flex-col min-[360px]:flex-row gap-2 justify-end">
-            <Button variant="outline" onClick={() => setShowCodeModal(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={verifyCode} disabled={!accessCode}>
-              Continuar
-            </Button>
-          </div>
-        }
-      >
-        <Input
-          type="password"
-          value={accessCode}
-          onChange={(e) => setAccessCode(e.target.value)}
-          className="w-full"
-        />
-      </AppModal>
-
-      <AppModal
-        open={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        dismissible={false}
-        title="Confirmar eliminación"
-        footer={
-          <div className="flex flex-col min-[360px]:flex-row gap-2 justify-end">
-            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
-              Borrar definitivamente
-            </Button>
-          </div>
-        }
-      >
-        <p>
-          Se eliminarán PERMANENTEMENTE todos los productos con stock 0. Elige
-          alcance:
-        </p>
-        <RadioGroup
-          value={deleteTipo}
-          onValueChange={(v) => setDeleteTipo(v as 'new' | 'used' | 'both')}
-          className="mt-4 space-y-2"
-        >
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="new" id="del-new" />
-            <Label htmlFor="del-new" className="text-sm">
-              Nuevos
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="used" id="del-used" />
-            <Label htmlFor="del-used" className="text-sm">
-              Usados
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="both" id="del-both" />
-            <Label htmlFor="del-both" className="text-sm">
-              Ambos
-            </Label>
-          </div>
-        </RadioGroup>
-      </AppModal>
       </div>
     </ErrorBoundary>
   );
