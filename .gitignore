@@ -55,3 +55,7 @@ backend/cache/
 *.njsproj
 *.sln
 *.sw?
+
+# Tunnel configuration files (local only)
+config-tunnel.yml
+start-naveganet-tunnel.ps1
